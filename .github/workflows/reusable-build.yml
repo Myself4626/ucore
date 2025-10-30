@@ -51,7 +51,7 @@ jobs:
           command: |
             set -eo pipefail
 
-            skopeo inspect docker://quay.io/fedora/fedora-coreos:${{ inputs.coreos_version }} > inspect.json
+            skopeo inspect docker://quay.io/fedora/fedora-bootc:${{ inputs.coreos_version }} > inspect.json
 
             image=$(jq -r '.["Labels"]["org.opencontainers.image.version"]' inspect.json)
             if [ -z "$image" ] || [ "null" = "$image" ]; then
@@ -139,7 +139,7 @@ jobs:
           command: |
             # pull the base image used for FROM in containerfile so
             # we can retry on that unfortunately common failure case
-            podman pull quay.io/fedora/fedora-coreos:${{ env.IMAGE_VERSION }}
+            podman pull quay.io/fedora/fedora-bootc:${{ env.IMAGE_VERSION }}
             podman pull ${{ env.IMAGE_REGISTRY }}/akmods:${{ env.KERNEL_FLAVOR }}-${{ env.FEDORA_VERSION }}
             podman pull ${{ env.IMAGE_REGISTRY }}/akmods-nvidia:${{ env.KERNEL_FLAVOR }}-${{ env.FEDORA_VERSION }}
             podman pull ${{ env.IMAGE_REGISTRY }}/akmods-zfs:${{ env.KERNEL_FLAVOR }}-${{ env.FEDORA_VERSION }}

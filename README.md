@@ -50,7 +50,7 @@ Please take a look at the included modifications, and help us improve uCore if t
 In general, the Universal Blue project has been working to streamline various aspects of our builds. In several areas
 this means we've cut back on images which do not have significant use, or otherwise found ways to build fewer images.
 
-For uCore, this means we are dropping builds of `fedora-coreos` images and reducing number of `ucore*` images by
+For uCore, this means we are dropping builds of `fedora-bootc` images and reducing number of `ucore*` images by
 including ZFS in all `ucore*` images both nvidia and non-nvidia.
 
 Existing tag structure for ZFS specific images will contine to work. The difference is that users running any
@@ -69,7 +69,7 @@ As of today, Fedora CoreOS upstream has updated to Fedora 42 as a base, however 
 team has agreed, we don't want to ship. As of April 30, this means uCore has been in an inbetween state. We have some hacks
 in place to pin our builds to the last F41 kernel/release 6.13.8/41.20250331.3.0. This also means that rebase from F42 of
 Fedora CoreOS to F41 of uCore will fail. So in the meantime, if you are attempting to install, use the following installer:
-https://builds.coreos.fedoraproject.org/prod/streams/stable/builds/41.20250331.3.0/x86_64/fedora-coreos-41.20250331.3.0-live.x86_64.iso
+https://builds.coreos.fedoraproject.org/prod/streams/stable/builds/41.20250331.3.0/x86_64/fedora-bootc-41.20250331.3.0-live.x86_64.iso
 
 ### 2024.11.12 - uCore has updated to Fedora 41
 
@@ -105,7 +105,7 @@ The [tag matrix](#tag-matrix) includes combinations of the following:
 
 Suitable for running containerized workloads on either bare metal or virtual machines, this image tries to stay lightweight but functional.
 
-- Starts with a [Fedora CoreOS image](https://quay.io/repository/fedora/fedora-coreos?tab=tags)
+- Starts with a [Fedora CoreOS image](https://quay.io/repository/fedora/fedora-bootc?tab=tags)
 - Adds the following:
   - [bootc](https://github.com/containers/bootc) (new way to update container native systems)
   - [cockpit](https://cockpit-project.org) (podman container and system management)
@@ -181,11 +181,11 @@ Hyper-Coverged Infrastructure(HCI) refers to storage and hypervisor in one place
 ## Installation
 
 > [!IMPORTANT]
-> **Read the [CoreOS installation guide](https://docs.fedoraproject.org/en-US/fedora-coreos/bare-metal/)** before attempting installation. uCore extends Fedora CoreOS; it does not provide its own custom or GUI installer.
+> **Read the [CoreOS installation guide](https://docs.fedoraproject.org/en-US/fedora-bootc/bare-metal/)** before attempting installation. uCore extends Fedora CoreOS; it does not provide its own custom or GUI installer.
 
 There are varying methods of installation for bare metal, cloud providers, and virtualization platforms.
 
-**All CoreOS installation methods require the user to [produce an Ignition file](https://docs.fedoraproject.org/en-US/fedora-coreos/producing-ign/).** This Ignition file should, at mimimum, set a password and SSH key for the default user (default username is `core`).
+**All CoreOS installation methods require the user to [produce an Ignition file](https://docs.fedoraproject.org/en-US/fedora-bootc/producing-ign/).** This Ignition file should, at mimimum, set a password and SSH key for the default user (default username is `core`).
 
 > [!TIP]
 > For bare metal installs, first test your ignition configuration by installing in a VM (or other test hardware) using the bare metal process.
@@ -204,11 +204,11 @@ One of the fastest paths to running uCore is using [examples/ucore-autorebase.bu
 
 1. As usual, you'll need to [follow the docs to setup a password](https://coreos.github.io/butane/examples/#using-password-authentication). Substitute your password hash for `YOUR_GOOD_PASSWORD_HASH_HERE` in the `ucore-autorebase.butane` file, and add your ssh pub key while you are at it.
 1. Generate an ignition file from your new `ucore-autorebase.butane` [using the butane utility](https://coreos.github.io/butane/getting-started/).
-1. Now install CoreOS for [hypervisor, cloud provider or bare-metal](https://docs.fedoraproject.org/en-US/fedora-coreos/bare-metal/), i.e. `sudo coreos-installer install /dev/nvme0n1 --ignition-url https://example.com/ucore-autorebase.ign` (or `--ignition-file /path/to/ucore-autorebase.ign`). Your ignition file should work for any platform, auto-rebasing to the `ucore:stable` (or other `IMAGE:TAG` combo), rebooting and leaving your install ready to use.
+1. Now install CoreOS for [hypervisor, cloud provider or bare-metal](https://docs.fedoraproject.org/en-US/fedora-bootc/bare-metal/), i.e. `sudo coreos-installer install /dev/nvme0n1 --ignition-url https://example.com/ucore-autorebase.ign` (or `--ignition-file /path/to/ucore-autorebase.ign`). Your ignition file should work for any platform, auto-rebasing to the `ucore:stable` (or other `IMAGE:TAG` combo), rebooting and leaving your install ready to use.
 
 ### Manual Install/Rebase
 
-Once a machine is running any Fedora CoreOS version, you can easily rebase to uCore.  Installing CoreOS itself can be done through [a number of provisioning methods](https://docs.fedoraproject.org/en-US/fedora-coreos/bare-metal/).
+Once a machine is running any Fedora CoreOS version, you can easily rebase to uCore.  Installing CoreOS itself can be done through [a number of provisioning methods](https://docs.fedoraproject.org/en-US/fedora-bootc/bare-metal/).
 
 > [!WARNING]
 > **Rebasing from Fedora IoT or Atomic Desktops is not supported!**
@@ -236,7 +236,7 @@ sudo rpm-ostree rebase ostree-image-signed:docker://ghcr.io/ublue-os/IMAGE:TAG
 
 ### CoreOS and ostree Docs
 
-It's a good idea to become familar with the [Fedora CoreOS Documentation](https://docs.fedoraproject.org/en-US/fedora-coreos/) as well as the [CoreOS rpm-ostree docs](https://coreos.github.io/rpm-ostree/). Note especially, this image is only possible due to [ostree native containers](https://coreos.github.io/rpm-ostree/container/).
+It's a good idea to become familar with the [Fedora CoreOS Documentation](https://docs.fedoraproject.org/en-US/fedora-bootc/) as well as the [CoreOS rpm-ostree docs](https://coreos.github.io/rpm-ostree/). Note especially, this image is only possible due to [ostree native containers](https://coreos.github.io/rpm-ostree/container/).
 
 ### Podman
 
@@ -249,7 +249,7 @@ Fedora CoreOS expects the user to run services using [podman](https://podman.io)
 #### Docker/Moby and Podman
 
 > [!IMPORTANT]
-> CoreOS [cautions against](https://docs.fedoraproject.org/en-US/fedora-coreos/faq/#_can_i_run_containers_via_docker_and_podman_at_the_same_time) running podman and docker containers at the same time.  Thus, `docker.socket` is disabled by default to prevent accidental activation of the docker daemon, given podman is the default.
+> CoreOS [cautions against](https://docs.fedoraproject.org/en-US/fedora-bootc/faq/#_can_i_run_containers_via_docker_and_podman_at_the_same_time) running podman and docker containers at the same time.  Thus, `docker.socket` is disabled by default to prevent accidental activation of the docker daemon, given podman is the default.
 >
 > Only run both simultaneously if you understand the risk.
 
