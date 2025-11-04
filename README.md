@@ -3,7 +3,7 @@
 [![stable](https://github.com/ublue-os/ucore/actions/workflows/build-stable.yml/badge.svg)](https://github.com/ublue-os/ucore/actions/workflows/build-stable.yml)
 [![testing](https://github.com/ublue-os/ucore/actions/workflows/build-testing.yml/badge.svg)](https://github.com/ublue-os/ucore/actions/workflows/build-testing.yml)
 
-uCore is an OCI image of [Fedora CoreOS](https://getfedora.org/coreos/) with "batteries included". More specifically, it's an opinionated, custom CoreOS image, built daily with some common tools added in. The idea is to make a lightweight server image including commonly used services or the building blocks to host them.
+uCore is an OCI image of [Fedora bootc](https://getfedora.org/coreos/) with "batteries included". More specifically, it's an opinionated, custom bootc image, built daily with some common tools added in. The idea is to make a lightweight server image including commonly used services or the building blocks to host them.
 
 Please take a look at the included modifications, and help us improve uCore if the project interests you.
 
@@ -21,16 +21,16 @@ Please take a look at the included modifications, and help us improve uCore if t
   - [Auto-Rebase Install](#auto-rebase-install)
   - [Manual Install/Rebase](#manual-installrebase)
 - [Tips and Tricks](#tips-and-tricks)
-  - [CoreOS and ostree Docs](#coreos-and-ostree-docs)
-  - [Podman](#podman)
-    - [Immutability and Podman](#immutability-and-podman)
-    - [Docker/Moby and Podman](#dockermoby-and-podman)
-    - [Podman and FirewallD](#podman-and-firewalld)
-    - [Automatically start containers on boot](#automatically-start-containers-on-boot)
-  - [Default Services](#default-services)
-  - [SELinux Troubleshooting](#selinux-troubleshooting)
-  - [Distrobox](#distrobox)
-  - [NAS - Storage](#nas---storage)
+- [bootc and ostree Docs](#bootc-and-ostree-docs)
+- [Podman](#podman)
+  - [Immutability and Podman](#immutability-and-podman)
+  - [Docker/Moby and Podman](#dockermoby-and-podman)
+  - [Podman and FirewallD](#podman-and-firewalld)
+  - [Automatically start containers on boot](#automatically-start-containers-on-boot)
+- [Default Services](#default-services)
+- [SELinux Troubleshooting](#selinux-troubleshooting)
+- [Distrobox](#distrobox)
+- [NAS - Storage](#nas---storage)
     - [NFS](#nfs)
     - [Samba](#samba)
   - [SecureBoot w/ kmods](#secureboot-w-kmods)
@@ -61,19 +61,19 @@ see our discourse post, [uCore: Streamlining (not retiring)](https://universal-b
 
 ### 2025.05.14 - uCore update to Fedora 42
 
-As of today, Fedora CoreOS upstream has updated to kernel 6.14.3 and uCore has unpinned and is building on F42.
+As of today, Fedora bootc upstream has updated to kernel 6.14.3 and uCore has unpinned and is building on F42.
 
 ### 2025.04.30 - uCore delaying Fedora 42 update
 
-As of today, Fedora CoreOS upstream has updated to Fedora 42 as a base, however it uses kernel 6.14.0 which our
+As of today, Fedora bootc upstream has updated to Fedora 42 as a base, however it uses kernel 6.14.0 which our
 team has agreed, we don't want to ship. As of April 30, this means uCore has been in an inbetween state. We have some hacks
 in place to pin our builds to the last F41 kernel/release 6.13.8/41.20250331.3.0. This also means that rebase from F42 of
-Fedora CoreOS to F41 of uCore will fail. So in the meantime, if you are attempting to install, use the following installer:
+Fedora bootc to F41 of uCore will fail. So in the meantime, if you are attempting to install, use the following installer:
 https://builds.coreos.fedoraproject.org/prod/streams/stable/builds/41.20250331.3.0/x86_64/fedora-bootc-41.20250331.3.0-live.x86_64.iso
 
 ### 2024.11.12 - uCore has updated to Fedora 41
 
-As of today our upstream Fedora CoreOS stable image updated to Fedora 41 under the hood, so expect a lot of package updates.
+As of today our upstream Fedora bootc stable image updated to Fedora 41 under the hood, so expect a lot of package updates.
 
 ### 2024.11.12 - uCore *stable* has pinned to kernel version *6.11.3*
 
@@ -81,7 +81,7 @@ Kernel version `6.11.3` was the previous *stable* update's kernel, and despite t
 
 This is due to a kernel bug in versions `6.11.4`/`6.11.5` which [breaks tailscale status reporting](https://github.com/tailscale/tailscale/issues/13863). As many users of uCore do use tailscale, we've decided to be extra cautious and hold back the kernel, even though the rest of stable updated as usual.
 
-We expect the next update of Fedora CoreOS to be on `6.11.6` per the current state of the testing stream. So uCore will follow when that update occurs.
+We expect the next update of Fedora bootc to be on `6.11.6` per the current state of the testing stream. So uCore will follow when that update occurs.
 
 ## Features
 
@@ -95,8 +95,8 @@ The image names are:
 
 The [tag matrix](#tag-matrix) includes combinations of the following:
 
-- `stable` - images based on Fedora CoreOS stable stream including zfs driver and tools
-- `testing` - images based on Fedora CoreOS testing stream including zfs driver and tools
+- `stable` - images based on Fedora bootc stable stream including zfs driver and tools
+- `testing` - images based on Fedora bootc testing stream including zfs driver and tools
 - `nvidia` - images which include nvidia driver and container runtime
 
 ### Images
@@ -105,14 +105,14 @@ The [tag matrix](#tag-matrix) includes combinations of the following:
 
 Suitable for running containerized workloads on either bare metal or virtual machines, this image tries to stay lightweight but functional.
 
-- Starts with a [Fedora CoreOS image](https://quay.io/repository/fedora/fedora-bootc?tab=tags)
+- Starts with a [Fedora bootc image](https://quay.io/repository/fedora/fedora-bootc?tab=tags)
 - Adds the following:
   - [bootc](https://github.com/containers/bootc) (new way to update container native systems)
   - [cockpit](https://cockpit-project.org) (podman container and system management)
   - [firewalld](https://firewalld.org/)
   - guest VM agents (`qemu-guest-agent` and `open-vm-tools`))
-  - [docker-buildx](https://github.com/docker/buildx) and [docker-compose](https://github.com/docker/compose) (versions matched to moby release) *docker(moby-engine) is pre-installed in CoreOS*
-  - [podman-compose](https://github.com/containers/podman-compose) *podman is pre-installed in CoreOS*
+  - [docker-buildx](https://github.com/docker/buildx) and [docker-compose](https://github.com/docker/compose) (versions matched to moby release) *docker(moby-engine) is pre-installed in bootc*
+  - [podman-compose](https://github.com/containers/podman-compose) *podman is pre-installed in bootc*
   - [tailscale](https://tailscale.com) and [wireguard-tools](https://www.wireguard.com)
   - [tmux](https://github.com/tmux/tmux/wiki/Getting-Started)
   - udev rules enabling full functionality on some [Realtek 2.5Gbit USB Ethernet](https://github.com/wget/realtek-r8152-linux/) devices
@@ -128,7 +128,7 @@ Suitable for running containerized workloads on either bare metal or virtual mac
 - Provides public key allowing [SecureBoot](#secureboot) (for ucore signed `nvidia` or `zfs` drivers)
 
 > [!IMPORTANT]
-> Per [cockpit's instructions](https://cockpit-project.org/running.html#coreos) the cockpit-ws RPM is **not** installed, rather it is provided as a pre-defined systemd service which runs a podman container.
+> Per [cockpit's instructions](https://cockpit-project.org/running.html#bootc) the cockpit-ws RPM is **not** installed, rather it is provided as a pre-defined systemd service which runs a podman container.
 
 > [!NOTE]
 > When uCore was first created, zincati failed to start on systems using OCI-based deployments (such as uCore). This issue has since been addressed, but further testing is needed to verify zincati’s compatibility with custom systems like uCore.
@@ -141,7 +141,7 @@ This image builds on `ucore-minimal` but adds drivers, storage tools and utiliti
   - [cockpit-storaged](https://cockpit-project.org) (udisks2 based storage management)
   - [distrobox](https://github.com/89luca89/distrobox) - a [toolbox](https://containertoolbx.org/) alternative
   - [duperemove](https://github.com/markfasheh/duperemove)
-  - all wireless (wifi) card firmwares (CoreOS does not include them) - hardware enablement FTW
+  - all wireless (wifi) card firmwares (bootc does not include them) - hardware enablement FTW
   - [mergerfs](https://github.com/trapexit/mergerfs)
   - nfs-utils - nfs utils including daemon for kernel NFS server
   - [pcp](https://pcp.io) Performance Co-pilot monitoring
@@ -181,11 +181,11 @@ Hyper-Coverged Infrastructure(HCI) refers to storage and hypervisor in one place
 ## Installation
 
 > [!IMPORTANT]
-> **Read the [CoreOS installation guide](https://docs.fedoraproject.org/en-US/fedora-bootc/bare-metal/)** before attempting installation. uCore extends Fedora CoreOS; it does not provide its own custom or GUI installer.
+> **Read the [bootc installation guide](https://docs.fedoraproject.org/en-US/fedora-bootc/bare-metal/)** before attempting installation. uCore extends Fedora bootc; it does not provide its own custom or GUI installer.
 
 There are varying methods of installation for bare metal, cloud providers, and virtualization platforms.
 
-**All CoreOS installation methods require the user to [produce an Ignition file](https://docs.fedoraproject.org/en-US/fedora-bootc/producing-ign/).** This Ignition file should, at mimimum, set a password and SSH key for the default user (default username is `core`).
+**All bootc installation methods require the user to [produce an Ignition file](https://docs.fedoraproject.org/en-US/fedora-bootc/producing-ign/).** This Ignition file should, at mimimum, set a password and SSH key for the default user (default username is `core`).
 
 > [!TIP]
 > For bare metal installs, first test your ignition configuration by installing in a VM (or other test hardware) using the bare metal process.
@@ -200,21 +200,21 @@ cosign verify --key https://github.com/ublue-os/ucore/raw/main/cosign.pub ghcr.i
 
 ### Auto-Rebase Install
 
-One of the fastest paths to running uCore is using [examples/ucore-autorebase.butane](examples/ucore-autorebase.butane) as a template for your CoreOS butane file.
+One of the fastest paths to running uCore is using [examples/ucore-autorebase.butane](examples/ucore-autorebase.butane) as a template for your bootc butane file.
 
 1. As usual, you'll need to [follow the docs to setup a password](https://coreos.github.io/butane/examples/#using-password-authentication). Substitute your password hash for `YOUR_GOOD_PASSWORD_HASH_HERE` in the `ucore-autorebase.butane` file, and add your ssh pub key while you are at it.
 1. Generate an ignition file from your new `ucore-autorebase.butane` [using the butane utility](https://coreos.github.io/butane/getting-started/).
-1. Now install CoreOS for [hypervisor, cloud provider or bare-metal](https://docs.fedoraproject.org/en-US/fedora-bootc/bare-metal/), i.e. `sudo coreos-installer install /dev/nvme0n1 --ignition-url https://example.com/ucore-autorebase.ign` (or `--ignition-file /path/to/ucore-autorebase.ign`). Your ignition file should work for any platform, auto-rebasing to the `ucore:stable` (or other `IMAGE:TAG` combo), rebooting and leaving your install ready to use.
+1. Now install bootc for [hypervisor, cloud provider or bare-metal](https://docs.fedoraproject.org/en-US/fedora-bootc/bare-metal/), i.e. `sudo coreos-installer install /dev/nvme0n1 --ignition-url https://example.com/ucore-autorebase.ign` (or `--ignition-file /path/to/ucore-autorebase.ign`). Your ignition file should work for any platform, auto-rebasing to the `ucore:stable` (or other `IMAGE:TAG` combo), rebooting and leaving your install ready to use.
 
 ### Manual Install/Rebase
 
-Once a machine is running any Fedora CoreOS version, you can easily rebase to uCore.  Installing CoreOS itself can be done through [a number of provisioning methods](https://docs.fedoraproject.org/en-US/fedora-bootc/bare-metal/).
+Once a machine is running any Fedora bootc version, you can easily rebase to uCore.  Installing bootc itself can be done through [a number of provisioning methods](https://docs.fedoraproject.org/en-US/fedora-bootc/bare-metal/).
 
 > [!WARNING]
 > **Rebasing from Fedora IoT or Atomic Desktops is not supported!**
-> If ignition doesn't provide a desired feature, then Fedora CoreOS doesn't support that feature. Rebasing from another system to gain a filesystem feature or GUI installation is very likely to cause problems later on.
+> If ignition doesn't provide a desired feature, then Fedora bootc doesn't support that feature. Rebasing from another system to gain a filesystem feature or GUI installation is very likely to cause problems later on.
 
-To rebase an existing CoreOS machine to the latest uCore:
+To rebase an existing bootc machine to the latest uCore:
 
 1. Execute the `rpm-ostree rebase` command (below) with desired `IMAGE` and `TAG`.
 1. Reboot, as instructed.
@@ -234,22 +234,22 @@ sudo rpm-ostree rebase ostree-image-signed:docker://ghcr.io/ublue-os/IMAGE:TAG
 
 ## Tips and Tricks
 
-### CoreOS and ostree Docs
+### bootc and ostree Docs
 
-It's a good idea to become familar with the [Fedora CoreOS Documentation](https://docs.fedoraproject.org/en-US/fedora-bootc/) as well as the [CoreOS rpm-ostree docs](https://coreos.github.io/rpm-ostree/). Note especially, this image is only possible due to [ostree native containers](https://coreos.github.io/rpm-ostree/container/).
+It's a good idea to become familar with the [Fedora bootc Documentation](https://docs.fedoraproject.org/en-US/fedora-bootc/) as well as the [bootc rpm-ostree docs](https://coreos.github.io/rpm-ostree/). Note especially, this image is only possible due to [ostree native containers](https://coreos.github.io/rpm-ostree/container/).
 
 ### Podman
 
 #### Immutability and Podman
 
-A CoreOS root filesystem system is immutable at runtime, and it is not recommended to install packages like in a mutable "normal" distribution.
+A bootc root filesystem system is immutable at runtime, and it is not recommended to install packages like in a mutable "normal" distribution.
 
-Fedora CoreOS expects the user to run services using [podman](https://podman.io). `moby-engine`, the free Docker implementation, is also installed for those who desire docker instead of podman.
+Fedora bootc expects the user to run services using [podman](https://podman.io). `moby-engine`, the free Docker implementation, is also installed for those who desire docker instead of podman.
 
 #### Docker/Moby and Podman
 
 > [!IMPORTANT]
-> CoreOS [cautions against](https://docs.fedoraproject.org/en-US/fedora-bootc/faq/#_can_i_run_containers_via_docker_and_podman_at_the_same_time) running podman and docker containers at the same time.  Thus, `docker.socket` is disabled by default to prevent accidental activation of the docker daemon, given podman is the default.
+> bootc [cautions against](https://docs.fedoraproject.org/en-US/fedora-bootc/faq/#_can_i_run_containers_via_docker_and_podman_at_the_same_time) running podman and docker containers at the same time.  Thus, `docker.socket` is disabled by default to prevent accidental activation of the docker daemon, given podman is the default.
 >
 > Only run both simultaneously if you understand the risk.
 
@@ -347,7 +347,7 @@ Users may use [distrobox](https://github.com/89luca89/distrobox) to run images o
 
 But two others are included, which though common, warrant some explanation:
 
-- nfs-utils - replaces a "light" version typically in CoreOS to provide kernel NFS server
+- nfs-utils - replaces a "light" version typically in bootc to provide kernel NFS server
 - samba and samba-usershares - to provide SMB sevices
 
 #### NFS
@@ -491,7 +491,7 @@ The utility will prompt for a password. The password will be used to verify this
 
 If you installed an image with `-nvidia` in the tag, the nvidia kernel module, basic CUDA libraries, and the nvidia-container-toolkit are all are pre-installed.
 
-Note, this does NOT add desktop graphics services to your images, but it DOES enable your compatible nvidia GPU to be used for nvdec, nvenc, CUDA, etc. Since this is CoreOS and it's primarily intended for container workloads the [nvidia container toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/index.html) should be well understood.
+Note, this does NOT add desktop graphics services to your images, but it DOES enable your compatible nvidia GPU to be used for nvdec, nvenc, CUDA, etc. Since this is bootc and it's primarily intended for container workloads the [nvidia container toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/index.html) should be well understood.
 
 The included driver is the [latest nvidia driver](https://github.com/negativo17/nvidia-driver/blob/master/nvidia-driver.spec) as bundled by [negativo17](https://negativo17.org/nvidia-driver/). This package was chosen over rpmfusion's due to it's granular packages which allow us to install just the minimal `nvidia-driver-cuda` packages.
 
@@ -517,7 +517,7 @@ echo zfs > /etc/modules-load.d/zfs.conf
 
 #### ZFS and immutable root filesystem
 
-The default mountpoint for any newly created zpool `tank` is `/tank`. This is a problem in CoreOS as the root filesystem (`/`) is immutable, which means a directory cannot be created as a mountpoint for the zpool. An example of the problem looks like this:
+The default mountpoint for any newly created zpool `tank` is `/tank`. This is a problem in bootc as the root filesystem (`/`) is immutable, which means a directory cannot be created as a mountpoint for the zpool. An example of the problem looks like this:
 
 ```bash
 # zpool create tank /dev/sdb

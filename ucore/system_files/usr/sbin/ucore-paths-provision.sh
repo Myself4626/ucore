@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 #
-# some paths are not provisioned properly in CoreOS OCI images
+# some paths are not provisioned properly in bootc OCI images
 # at least some due to restrictions on paths in /var
 #
 # ucore-paths-provision.sh will ensure these are created

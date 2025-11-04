@@ -2,8 +2,8 @@ name: build-ucore
 on:
   workflow_call:
     inputs:
-      coreos_version:
-        description: "The CoreOS stream: stable or testing"
+      bootc_version:
+        description: "The bootc stream: stable or testing"
         required: true
         type: string
 env:
@@ -51,7 +51,7 @@ jobs:
           command: |
             set -eo pipefail
 
-            skopeo inspect docker://quay.io/fedora/fedora-coreos:${{ inputs.coreos_version }} > inspect.json
+            skopeo inspect docker://quay.io/fedora/fedora-bootc:${{ inputs.bootc_version }} > inspect.json
 
             image=$(jq -r '.["Labels"]["org.opencontainers.image.version"]' inspect.json)
             if [ -z "$image" ] || [ "null" = "$image" ]; then
@@ -96,7 +96,7 @@ jobs:
     env:
       FEDORA_VERSION: ${{ needs.stream_info.outputs.fedora}}
       IMAGE_VERSION: ${{ needs.stream_info.outputs.image}}
-      KERNEL_FLAVOR: coreos-${{ inputs.coreos_version }}
+      KERNEL_FLAVOR: bootc-${{ inputs.bootc_version }}
       KERNEL_VERSION: ${{ needs.stream_info.outputs.kernel}}
       PR_PREFIX: ${{ needs.workflow_info.outputs.pr_prefix }}
 
@@ -112,11 +112,11 @@ jobs:
           - ""
         include:
           - image_suffix: "-minimal"
-            description: An OCI image of Fedora CoreOS with a few extra tools and suitable for running in a VM
+            description: An OCI image of Fedora bootc with a few extra tools and suitable for running in a VM
           - image_suffix: ""
-            description: An OCI image of Fedora CoreOS with a few extra tools, hardware support, and storage utilities
+            description: An OCI image of Fedora bootc with a few extra tools, hardware support, and storage utilities
           - image_suffix: "-hci"
-            description: A hyper-converged infrastructure OCI image of Fedora CoreOS (storage + hypervisor)
+            description: A hyper-converged infrastructure OCI image of Fedora bootc (storage + hypervisor)
 
     steps:
       # Checkout push-to-registry action GitHub repository
@@ -139,7 +139,7 @@ jobs:
           command: |
             # pull the base image used for FROM in containerfile so
             # we can retry on that unfortunately common failure case
-            podman pull quay.io/fedora/fedora-coreos:${{ env.IMAGE_VERSION }}
+            podman pull quay.io/fedora/fedora-bootc:${{ env.IMAGE_VERSION }}
             podman pull ${{ env.IMAGE_REGISTRY }}/akmods:${{ env.KERNEL_FLAVOR }}-${{ env.FEDORA_VERSION }}
             podman pull ${{ env.IMAGE_REGISTRY }}/akmods-nvidia:${{ env.KERNEL_FLAVOR }}-${{ env.FEDORA_VERSION }}
             podman pull ${{ env.IMAGE_REGISTRY }}/akmods-zfs:${{ env.KERNEL_FLAVOR }}-${{ env.FEDORA_VERSION }}
@@ -192,21 +192,21 @@ jobs:
         run: |
           # Generate a timestamp for creating an image version history
           TIMESTAMP="$(date +%Y%m%d)"
-          COREOS_VERSION="${{ inputs.coreos_version }}${{ matrix.nvidia_tag }}"
+          BOOTC_VERSION="${{ inputs.bootc_version }}${{ matrix.nvidia_tag }}"
 
           COMMIT_TAGS=()
           BUILD_TAGS=()
 
           # Have tags for tracking builds during pull request
           SHA_SHORT="${GITHUB_SHA::7}"
-          COMMIT_TAGS+=("pr-${{ github.event.number }}-${COREOS_VERSION}")
-          COMMIT_TAGS+=("${SHA_SHORT}-${COREOS_VERSION}")
+          COMMIT_TAGS+=("pr-${{ github.event.number }}-${BOOTC_VERSION}")
+          COMMIT_TAGS+=("${SHA_SHORT}-${BOOTC_VERSION}")
 
-          BUILD_TAGS=("${COREOS_VERSION}" "${COREOS_VERSION}-${TIMESTAMP}")
+          BUILD_TAGS=("${BOOTC_VERSION}" "${BOOTC_VERSION}-${TIMESTAMP}")
           # always add the '-zfs' tag to each image since we include ZFS with them all
           # and we want users of the existing '-zfs' images to still get updates
-          BUILD_TAGS+=("${COREOS_VERSION}-zfs")
-          BUILD_TAGS+=("${COREOS_VERSION}-zfs-${TIMESTAMP}")
+          BUILD_TAGS+=("${BOOTC_VERSION}-zfs")
+          BUILD_TAGS+=("${BOOTC_VERSION}-zfs-${TIMESTAMP}")
 
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
               echo "Generated the following commit tags: "
@@ -216,7 +216,7 @@ jobs:
 
               alias_tags=("${COMMIT_TAGS[@]}")
           else
-              if [[ "${COREOS_VERSION}" == "stable" ]]; then
+              if [[ "${BOOTC_VERSION}" == "stable" ]]; then
                   BUILD_TAGS+=("latest")
               fi
 
@@ -256,7 +256,7 @@ jobs:
           tags: |
             ${{ steps.generate-tags.outputs.alias_tags }}
           build-args: |
-            COREOS_VERSION=${{ inputs.coreos_version }}
+            BOOTC_VERSION=${{ inputs.bootc_version }}
             FEDORA_VERSION=${{ env.FEDORA_VERSION }}
             IMAGE_VERSION=${{ env.IMAGE_VERSION }}
             IMAGE_REGISTRY=${{ env.IMAGE_REGISTRY }}

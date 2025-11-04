@@ -13,9 +13,7 @@ fi
 
 
 ## ALWAYS: regular post-install
-systemctl disable coreos-oci-migration-motd.service
-systemctl disable docker.socket
-systemctl disable zincati.service
+#systemctl disable docker.socket
 
 systemctl enable gssproxy-workaround.service
 systemctl enable swtpm-workaround.service

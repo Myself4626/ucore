@@ -1,4 +1,4 @@
-ARG COREOS_VERSION="${COREOS_VERSION:-stable}"
+ARG BOOTC_VERSION="${BOOTC_VERSION:-stable}"
 ARG FEDORA_VERSION="${FEDORA_VERSION:-40}"
 ARG IMAGE_VERSION="${IMAGE_VERSION:-stable}"
 ARG IMAGE_REGISTRY="${IMAGE_REGISTRY:-ghcr.io/ublue-os}"
@@ -16,9 +16,9 @@ FROM scratch AS ctx
 COPY / /
 
 # ucore-minimal image section
-FROM quay.io/fedora/fedora-coreos:${IMAGE_VERSION} AS ucore-minimal
+FROM quay.io/fedora/fedora-bootc:${IMAGE_VERSION} AS ucore-minimal
 
-ARG COREOS_VERSION="${COREOS_VERSION:-stable}"
+ARG BOOTC_VERSION="${BOOTC_VERSION:-stable}"
 # build with --build-arg NVIDA_TAG="-nvidia" to install nvidia
 ARG NVIDIA_TAG="${NVIDIA_TAG}"
 
@@ -42,7 +42,7 @@ RUN ["bootc", "container", "lint"]
 # ucore image section
 FROM ucore-minimal AS ucore
 
-ARG COREOS_VERSION="${COREOS_VERSION:-stable}"
+ARG BOOTC_VERSION="${BOOTC_VERSION:-stable}"
 ARG NVIDIA_TAG="${NVIDIA_TAG}"
 
 RUN --mount=type=cache,dst=/var/cache/libdnf5 \
@@ -56,7 +56,7 @@ RUN ["bootc", "container", "lint"]
 # ucore-hci image section
 FROM ucore AS ucore-hci
 
-ARG COREOS_VERSION="${COREOS_VERSION:-stable}"
+ARG BOOTC_VERSION="${BOOTC_VERSION:-stable}"
 ARG NVIDIA_TAG="${NVIDIA_TAG}"
 
 RUN --mount=type=cache,dst=/var/cache/libdnf5 \
