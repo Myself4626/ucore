@@ -7,7 +7,7 @@ on:
     paths-ignore:
       - "**.md"
   schedule:
-    - cron: '55 2 * * *'  # 2:55am-ish UTC everyday (approx 50 minutes after akmods images run)
+    - cron: "55 2 * * *" # 2:55am-ish UTC everyday (approx 50 minutes after akmods images run)
   workflow_dispatch:
 
 jobs:
@@ -15,4 +15,4 @@ jobs:
     uses: ./.github/workflows/reusable-build.yml
     secrets: inherit
     with:
-      coreos_version: rawhide
+      coreos_version: testing
